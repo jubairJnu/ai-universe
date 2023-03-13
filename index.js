@@ -1,17 +1,17 @@
-const loadData = () =>{
+const loadData = (dataLimit) =>{
 
   const url = ('https://openapi.programming-hero.com/api/ai/tools')
   fetch(url)
   .then(res => res.json())
-  .then(data => displayData(data.data.tools))
+  .then(data => displayData(data.data.tools,dataLimit ))
 }
 
-const displayData = tools =>{
+const displayData = (tools, dataLimit) =>{
   console.log(tools);
 
   // show all button\
   const showall = document.getElementById('show-all');
-if(tools.length > 6){
+if(dataLimit && tools.length > 6){
   tools= tools.slice(0,6);
   showall.classList.remove('d-none');
 }
@@ -19,7 +19,7 @@ else{showall.classList.add('d-none')}
 
   const dataContainer = document.getElementById('data-container');
   tools.forEach(tool =>{
-
+    
     const dataDiv = document.createElement('div');
     dataDiv.classList.add('col');
     dataDiv.innerHTML = `
@@ -42,12 +42,59 @@ else{showall.classList.add('d-none')}
   <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
 </svg></i> <span> ${tool.published_in
 }</span>  
-<button class="ms-5"> <i class="fa-solid fa-arrow-right"></i></button>
+
+<button onclick="loaddataDetails(${tool.id})" type="button" class="btn btn-primary ms-5" data-bs-toggle="modal" data-bs-target="#dataDetails">
+<i class="fa-solid fa-arrow-right"></i>
+</button>
 
     </div>
   </div>`
   dataContainer.appendChild(dataDiv);
+  toggleSpiner(false);
   })
+ 
+}
+
+
+
+
+
+const processData =(dataLimit) =>{
+  toggleSpiner(true)
+  
+  loadData(dataLimit);
+}
+// spiner
+const toggleSpiner = isloading =>{
+  const loadSpiner = document.getElementById('loader');
+  if(isloading){
+    loadSpiner.classList.remove('d-none');
+}
+else{
+  loadSpiner.classList.add('d-none')
+}
 
 }
-loadData();
+
+
+
+// button handler
+const showAllBtn =document.getElementById('btn-show-all').addEventListener('click',function(){
+  // toggleSpiner(true)
+  loadData();
+})
+
+const loaddataDetails = id =>{
+  const url = (`https://openapi.programming-hero.com/api/ai/tool/${id}`);
+  console.log(url)
+  fetch(url)
+  .then(res=> res.json())
+  .then(data => displayDetails(data.data))
+}
+const displayDetails = datas =>{
+console.log(datas)
+  document.getElementById('dataDetailsLabel').innerText = datas.tool_name;
+  
+}
+
+loadData('6');
